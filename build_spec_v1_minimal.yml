@@ -1,0 +1,13 @@
+version: 0.1              # REQUIRED
+component: build
+timeoutInSeconds: 10   # timeoutInSeconds spec level.
+runAs: root               # runas default linux user. can be overridden at every step level.
+shell: bash               # shell(bash, sh, ksh) default shell type. can be overridden at every step level.
+
+steps:
+  - type: Command                   # required. predefined, currently supporting [Command | DockerRun]
+    name: "Install Maven"    # optional. its friendly display name.
+    shell: bash                     # optional to override at step level
+    timeoutInSeconds: 60           # optional to override at step level
+    runAs: root          # optional to override at step level
+    command: apt-get install -y maven

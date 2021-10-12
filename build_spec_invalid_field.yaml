@@ -1,0 +1,42 @@
+specVersion: 0.1              # REQUIRED
+timeout: 10000   # timeoutInSeconds spec level.
+user: root               # runas default linux user. can be overridden at every step level.
+
+environVariable:
+  variables:
+    "testEnv" : "testValue"
+    "testEnv1": "testValue1"
+  vaultVariables:
+    "secretKey": "1ao03bcd43d"       # secret-id (in OCI ID format) STORED IN OCI Vault Service
+
+artifactList:                      # this should be available from previous stages in the pipeline or downloadable link
+  - name: build-agent-test-jar
+    location: buildAgent-test-1.01.jar
+  - name: test-artifact
+    location: target/testArtifact
+  - name: download-artifact
+    url: https://objectstorage.us-phoenix-1.oraclecloud.com/p/QiB-yuqvZFPUeqO5P3A0UL-JCkiyTp_KU9KmmDsv7y3sNuJNTKAtvn56Nu0j1NBB/n/idllbnfszw6v/b/test/o/artifact
+    location: target/artifact
+
+executionSteps:
+  - type: Command                   # required. predefined, currently supporting [Command | DockerRun]
+    displayName: "Install Maven"    # optional. its friendly display name.
+    shell: bash                     # optional to override at step level
+    timeoutInSeconds: 650           # optional to override at step level
+    runAs: root          # optional to override at step level
+    command: apt-get install -y maven  # required. either single line string or multi line command.
+    onFailure:                      # optional to handle any failure
+      - type: Command
+        command: |
+          echo "Handling failure"
+          echo "Failure Successfully handled"
+        timeoutInSeconds: 400
+        runAs: root
+jars:
+  - name: foo-java-app
+    type: binary     # Enum: [binary, report, docker-image]
+    files:
+      - /bin/lib/foo-v1.jar
+      - /bin/run.sh
+    ignorePaths: yes
+    baseDirectory: /target
